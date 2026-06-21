@@ -1,21 +1,45 @@
-name: Build iOS Tweak
+name: Build BasicKey on Ubuntu
 on: [push, workflow_dispatch]
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git make clang perl wget unzip zip ldid odcctools libtinfo5
+      
       - name: Setup Theos
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
           echo "THEOS=~/theos" >> $GITHUB_ENV
+          echo "~/theos/bin" >> $GITHUB_PATH
+      
+      - name: Download iOS SDK
+        run: |
+          cd ~/theos/sdks
+          wget -q https://github.com/theos/sdks/archive/master.zip
+          unzip -o master.zip
+          cp -r sdks-master/*.sdk .
+          rm -rf sdks-master master.zip
+          ls -la
+      
+      - name: Fix Makefile for Ubuntu
+        run: |
+          export THEOS=~/theos
+          # Đảm bảo Makefile có TARGET
+          head -5 Makefile
+      
       - name: Build
         run: |
           export THEOS=~/theos
           make clean 2>/dev/null || true
           make package FINALPACKAGE=1
+      
       - name: Upload deb
         uses: actions/upload-artifact@v3
         with:
-          name: tweak-deb
+          name: BasicKey-deb
           path: packages/*.deb
