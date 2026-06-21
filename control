@@ -1,0 +1,9 @@
+Package: com.bk.bypass
+Name: BK
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Bypass
+Maintainer: bk
+Author: bk
+Section: Tweaks
+Depends: mobilesubstrate
